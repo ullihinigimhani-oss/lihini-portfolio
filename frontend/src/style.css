@@ -391,3 +391,34 @@ main .contact-form :is(input,textarea):focus {
 .source-evidence summary {cursor:pointer;min-height:44px;display:list-item;line-height:1.8;color:var(--card-heading)}
 .source-evidence a {overflow-wrap:anywhere;text-decoration:underline;text-underline-offset:3px}
 @media(max-width:430px) {.project-dialog {padding:20px}.project-links {gap:14px}}
+
+/* Qualifications: context labels, concise timeline, and issuer-led certificates. */
+.qualification-note {font-size:13px;line-height:1.8;color:var(--muted);max-width:850px;margin:0 0 28px}
+.skill-experience-group {margin-top:20px}
+.skill-experience-group h4 {font-size:10px;line-height:1.6;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);margin:0 0 9px;font-weight:700}
+.experience-contributions {padding-left:20px;margin:20px 0}
+.experience-contributions li {font-size:14px;line-height:1.85;color:var(--muted);margin-block:9px}
+.qualification-link {display:inline-flex;align-items:center;gap:8px;color:var(--accent);font-size:13px;line-height:1.8;text-decoration:underline;text-underline-offset:4px;min-height:44px}
+.education-status {display:inline-block;color:var(--text);background:var(--chip);border:1px solid var(--border);padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.6}
+.timeline-card>div {min-width:0}
+.certificate-group+.certificate-group {margin-top:38px}
+.certificate-issuer {font-size:16px;font-weight:600;color:var(--text);margin:0 0 18px;line-height:1.6}
+.certificate-title {font-size:14px;font-weight:700;line-height:1.6;margin:8px 0;color:var(--text)}
+.cert-card .certificate-date {display:block;font-size:11px;line-height:1.8;color:var(--muted)}
+.cert-card span.certificate-action {display:block;color:var(--accent);font-size:12px;font-weight:600;margin-top:9px;line-height:1.7;text-decoration:underline;text-underline-offset:3px}
+.cert-card .cert-icon {flex-shrink:0}
+.cert-card .cert-arrow {flex-shrink:0}
+.cert-card>div {min-width:0;overflow-wrap:anywhere}
+.cert-card small {line-height:1.7;display:block}
+@media(max-width:430px) {
+ .cert-card {gap:12px}
+ .experience-contributions {padding-left:18px}
+ .timeline-card h3 {font-size:20px;overflow-wrap:anywhere}
+}
+
+.experience-document {margin-top:18px}
+.service-letter-link {max-width:100%;text-align:left;line-height:1.6;white-space:normal}
+.service-letter-link>svg {flex-shrink:0}
+.service-letter-link>span {min-width:0;overflow-wrap:anywhere}
+.service-letter-link:focus-visible {outline:3px solid var(--focus);outline-offset:4px}
+@media(max-width:430px) {.service-letter-link {width:100%;padding:12px 14px;gap:10px}}
