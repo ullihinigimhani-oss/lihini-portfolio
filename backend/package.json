@@ -1,1 +1,23 @@
-{"name":"lihini-portfolio-backend","version":"1.0.0","private":true,"type":"module","scripts":{"start":"node server.js","dev":"node --watch server.js"},"dependencies":{"cors":"^2.8.5","dotenv":"^16.4.5","express":"^4.21.2","express-rate-limit":"^7.5.0","nodemailer":"^6.9.16"}}
+{
+  "name": "lihini-portfolio-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test server.test.js",
+    "check:db": "node check-database.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "nodemailer": "^10.5.0",
+    "pg": "^8.23.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
