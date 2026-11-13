@@ -66,3 +66,38 @@ test('upgraded Nodemailer composes the contact notification without network deli
   assert.match(text, /Integration Test/);
  });
 });
+
+test('invalid payloads, oversized requests and public reads do not persist messages', async () => {
+ let writes = 0;
+ await serve({database:{query:async()=>{writes++;return {rows:[]};}},env:{}},async({base,post})=>{
+  for (const invalid of [{...valid,name:' '},{...valid,subject:'Bad\r\nHeader'}, {...valid,message:'x\0'.repeat(10)}, {...valid,email:{value:'test@example.com'}}]) {
+   assert.equal((await post(invalid)).status,400);
+  }
+  assert.equal((await post({...valid,website:'bot.example'})).status,200);
+  assert.equal((await post({...valid,message:'x'.repeat(14000)})).status,413);
+  for (const path of ['/api/contact','/api/contact_messages','/api/messages','/api/contact/123']) {
+   const response=await fetch(base+path);
+   assert.equal(response.status,404);
+   assert.ok(!(await response.text()).includes(valid.email));
+  }
+  const health=await fetch(base+'/api/health');
+  assert.equal(health.status,200);
+  assert.equal(health.headers.get('cache-control'),'no-store');
+  assert.equal(health.headers.get('x-content-type-options'),'nosniff');
+  assert.equal(writes,0);
+ });
+});
+
+test('SMTP requires TLS and database persistence precedes notification',async()=>{
+ let saved=false;
+ await serve({database:{query:async()=>{saved=true;return {rows:[]};}},
+  env:{SMTP_HOST:'unused',SMTP_USER:'sender@example.com',SMTP_PASS:'test-only',CONTACT_EMAIL:'owner@example.com'},
+  createTransport:options=>{assert.equal(saved,true);assert.equal(options.requireTLS,true);return {sendMail:async()=>({accepted:['owner@example.com']})};}
+ },async({post})=>{assert.equal((await post(valid)).status,201);});
+});
+
+test('proxy hop configuration is explicit and rejects unsafe values',()=>{
+ for(const value of ['true','-1','1.5','wrong']) assert.throws(()=>createApp({env:{TRUST_PROXY_HOPS:value}}),/non-negative integer/);
+ assert.equal(createApp({env:{TRUST_PROXY_HOPS:'1'}}).get('trust proxy'),1);
+ assert.equal(createApp({env:{}}).get('trust proxy'),false);
+});

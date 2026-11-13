@@ -10,8 +10,17 @@ import { createDatabase, initializeDatabase } from './database.js';
 export function createApp({ database, env = process.env, createTransport = nodemailer.createTransport } = {}) {
  const app = express();
  app.disable('x-powered-by');
+ app.use((_req, res, next) => {
+  res.set({ 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' });
+  next();
+ });
  // Configure only after verifying the deployment proxy topology.
- if (env.TRUST_PROXY_HOPS) app.set('trust proxy', Number(env.TRUST_PROXY_HOPS));
+ if (env.TRUST_PROXY_HOPS !== undefined && env.TRUST_PROXY_HOPS !== '') {
+  if (!/^\d+$/.test(String(env.TRUST_PROXY_HOPS)) || !Number.isSafeInteger(Number(env.TRUST_PROXY_HOPS))) {
+   throw new Error('TRUST_PROXY_HOPS must be a non-negative integer');
+  }
+  app.set('trust proxy', Number(env.TRUST_PROXY_HOPS));
+ }
  const origins = (env.FRONTEND_URL || 'http://localhost:5173').split(',').map(v => v.trim()).filter(Boolean);
  app.use(cors({ origin: (origin, cb) => !origin || origins.includes(origin) ? cb(null, true) : cb(new Error('CORS blocked')) }));
  app.use(express.json({ limit: '12kb' }));
@@ -41,7 +50,7 @@ export function createApp({ database, env = process.env, createTransport = nodem
   let notification = 'not_configured';
   if (SMTP_HOST && SMTP_USER && SMTP_PASS && CONTACT_EMAIL) {
    try {
-    const transporter = createTransport({host:SMTP_HOST,port:Number(SMTP_PORT||587),secure:Number(SMTP_PORT||587)===465,
+    const transporter = createTransport({host:SMTP_HOST,port:Number(SMTP_PORT||587),secure:Number(SMTP_PORT||587)===465,requireTLS:true,
      auth:{user:SMTP_USER,pass:SMTP_PASS},connectionTimeout:10000,greetingTimeout:10000,socketTimeout:15000});
     const result = await transporter.sendMail({from:SMTP_USER,to:CONTACT_EMAIL,replyTo:email,subject:`Portfolio enquiry: ${subject}`,text:`Name: ${name}\nEmail: ${email}\n\n${message}`});
     notification = result.accepted?.length ? 'accepted' : 'failed';

@@ -10,6 +10,7 @@ export default function Reveal({ as: Element = 'div', delay = 0, immediate = fal
     let animation;
     let observer;
     const show = () => {
+      if (preference.matches || node.contains(document.activeElement)) return;
       animation = node.animate([
         { opacity: 0, transform: 'translateY(14px)' },
         { opacity: 1, transform: 'translateY(0)' },
@@ -23,7 +24,7 @@ export default function Reveal({ as: Element = 'div', delay = 0, immediate = fal
       observer.observe(node);
     }
     // Never leave a keyboard-focused control waiting for a reveal animation.
-    const finish = () => animation?.cancel();
+    const finish = () => { observer?.disconnect(); animation?.cancel(); };
     node.addEventListener('focusin', finish);
     const onPreference = () => { if (preference.matches) { observer?.disconnect(); finish(); } };
     preference.addEventListener('change', onPreference);

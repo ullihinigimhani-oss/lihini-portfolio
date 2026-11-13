@@ -13,7 +13,7 @@ export default function Navigation() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#090d1b' : '#f7f6fc');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0b0d14' : '#f7f6fc');
     try { localStorage.setItem('portfolio-theme', theme); } catch { /* Storage can be unavailable in private contexts. */ }
   }, [theme]);
 

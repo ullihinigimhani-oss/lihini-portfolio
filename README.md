@@ -36,20 +36,9 @@ VITE_API_URL=http://localhost:5000
 
 Set `DATABASE_URL` in `backend/.env` to your Neon PostgreSQL connection string. Startup creates `contact_messages` if it does not exist. Submissions are saved before optional SMTP notification; missing or failed SMTP does not discard saved messages. The response confirms storage, not inbox delivery.
 
-## Publish to GitHub
+## Repository workflow
 
-1. Create a **public** repository named `lihini-portfolio` on GitHub (do not initialize with README because this project already has one).
-2. Extract the ZIP and open a terminal in its root folder.
-3. Run:
-
-```bash
-git init
-git add .
-git commit -m "Initial professional portfolio"
-git branch -M main
-git remote add origin https://github.com/ullihinigimhani-oss/lihini-portfolio.git
-git push -u origin main
-```
+The repository already exists. Continue on the existing develop branch; do not reinitialize Git. Pushes, merges and deployments require the owner's explicit approval.
 
 ## Vercel frontend
 
@@ -62,7 +51,7 @@ git push -u origin main
 
 1. New Web Service → connect the same GitHub repo.
 2. Set **Root Directory** to `backend`.
-3. Runtime: **Node**; build command `npm install`; start command `npm start`.
+3. Runtime: **Node**; build command `npm ci`; start command `npm start`.
 4. Add environment variables: `DATABASE_URL`, `FRONTEND_URL=https://YOUR-VERCEL-URL.vercel.app`, `CONTACT_EMAIL`, and `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` if you want contact form email delivery. SMTP availability can depend on your Render plan/network policy; otherwise use the `mailto:` fallback.
 5. Test `https://YOUR-RENDER-SERVICE.onrender.com/api/health`.
 
@@ -74,7 +63,7 @@ git push -u origin main
 - `Textile-Saree` link was provided but did not resolve during verification; check its GitHub visibility or repository spelling.
 - AWS PDFs are **training completion certificates**, not professional AWS exam certifications.
 - For portrait updates, replace `frontend/public/profile.png` with your preferred high-quality original photo.
-- To change text, links, and projects, edit `frontend/src/main.jsx`.
+- Page composition is in `frontend/src/main.jsx`; verified project and qualification content is in `frontend/src/data/` with reusable sections in `frontend/src/components/`.
 
 ## Database integration checks
 
@@ -88,3 +77,34 @@ For Render, set `PORT`, `DATABASE_URL`, and `FRONTEND_URL` in service environmen
 The backend uses Nodemailer 10.5.0 or a compatible patched 10.x release and requires Node.js 20 or newer (local validation used Node.js 22.17.0). Ensure Render uses a compatible Node version. The upgrade from 6.10.1 preserves the existing SMTP `createTransport` / `sendMail` flow. Reviewed breaking changes include SES transport changes (unused here), the `NoAuth` to `ENOAUTH` error-code rename (this API handles errors generically), stricter HTTPS certificate validation (kept enabled), and the Node.js runtime requirement.
 
 Backend tests include real Nodemailer message composition using its in-memory stream transport; this does not connect to SMTP. The live Neon check also disables SMTP and rolls back its test message.
+
+## Phase 5 QA and production gate
+
+See `QA_REPORT.md` for the test matrix, observed limits, and production settings still requiring verification. Re-run locally:
+
+```text
+cd frontend
+npm ci
+npm run build
+node scripts/check-production.mjs
+```
+
+```text
+cd backend
+npm ci
+npm test
+npm run check:db
+npm audit
+```
+
+The database check disables SMTP and rolls back its temporary data. Backend tests use mocked or in-memory mail transports; they do not send real emails. Never test the live configured SMTP transport without the owner's authorization.
+
+Before approved deployment:
+
+- Vercel: root `frontend`, Vite preset, install `npm ci`, build `npm run build`, output `dist`, supported Node 22.x runtime. Set `VITE_API_URL` to the HTTPS Render origin at build time; otherwise production intentionally uses the existing mailto fallback and will not store form submissions in Neon.
+- Render: root `backend`, build `npm ci`, start `npm start`, supported patched Node 22.x runtime, `NODE_ENV=production`, and health check `/api/health/db`. The server binds to `0.0.0.0` and honors Render's `PORT`. Configure `DATABASE_URL` only on the backend and `FRONTEND_URL` as the exact Vercel origin with no trailing slash.
+- Set `TRUST_PROXY_HOPS` to the verified non-negative proxy hop count for the actual Render topology. Do not set blanket trust. Verify independent clients receive independent rate limits and spoofed forwarding headers do not bypass them. The hop count cannot be established from this local checkout.
+- SMTP notification is optional. When enabled, the API requires TLS. Credentials being present does not establish delivery: perform an explicitly authorized delivery test before claiming inbox delivery.
+- After the production domain is chosen, add a canonical URL and social sharing metadata using that verified domain. No placeholder domain is inserted.
+
+No `vercel.json` or `render.yaml` is required for the documented dashboard setup. Those platform settings and production URLs have not been inspected or deployed from this checkout. Keep automatic deployment triggers disabled until deployment is approved.
