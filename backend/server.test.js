@@ -101,3 +101,34 @@ test('proxy hop configuration is explicit and rejects unsafe values',()=>{
  assert.equal(createApp({env:{TRUST_PROXY_HOPS:'1'}}).get('trust proxy'),1);
  assert.equal(createApp({env:{}}).get('trust proxy'),false);
 });
+
+test('development CORS accepts both Vite ports while production stays explicit',async()=>{
+ const preflight=(base,origin)=>fetch(base+'/api/contact',{method:'OPTIONS',headers:{Origin:origin,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'content-type'}});
+ for(const NODE_ENV of [undefined,'development']) {
+  await serve({env:{NODE_ENV,FRONTEND_URL:'http://localhost:5173'}},async({base})=>{
+   for(const origin of ['http://localhost:5173','http://localhost:5174']) {
+    const response=await preflight(base,origin);
+    assert.equal(response.status,204);
+    assert.equal(response.headers.get('access-control-allow-origin'),origin);
+    assert.match(response.headers.get('access-control-allow-methods'),/POST/);
+    assert.match(response.headers.get('access-control-allow-headers'),/content-type/i);
+   }
+   assert.equal((await preflight(base,'http://localhost:5175')).status,403);
+  });
+ }
+ for(const NODE_ENV of ['production','test']) {
+  await serve({env:{NODE_ENV,FRONTEND_URL:'https://portfolio.example'}},async({base})=>{
+   const response=await preflight(base,'https://portfolio.example');
+   assert.equal(response.status,204);
+   assert.equal(response.headers.get('access-control-allow-origin'),'https://portfolio.example');
+   for(const origin of ['http://localhost:5173','http://localhost:5174','https://untrusted.example']) {
+    const blocked=await preflight(base,origin);
+    assert.equal(blocked.status,403);
+    assert.equal(blocked.headers.get('access-control-allow-origin'),null);
+   }
+  });
+ }
+ await serve({env:{NODE_ENV:'production'}},async({base})=>{
+  assert.equal((await preflight(base,'http://localhost:5173')).status,403);
+ });
+});

@@ -21,8 +21,14 @@ export function createApp({ database, env = process.env, createTransport = nodem
   }
   app.set('trust proxy', Number(env.TRUST_PROXY_HOPS));
  }
- const origins = (env.FRONTEND_URL || 'http://localhost:5173').split(',').map(v => v.trim()).filter(Boolean);
- app.use(cors({ origin: (origin, cb) => !origin || origins.includes(origin) ? cb(null, true) : cb(new Error('CORS blocked')) }));
+ const origins = new Set((env.FRONTEND_URL || '').split(',').map(v => v.trim()).filter(Boolean));
+ // Missing NODE_ENV means local development, matching Node's usual local setup.
+ // Production (and other explicit environments) use only FRONTEND_URL.
+ if ((env.NODE_ENV || 'development') === 'development') {
+  origins.add('http://localhost:5173');
+  origins.add('http://localhost:5174');
+ }
+ app.use(cors({ origin: (origin, cb) => !origin || origins.has(origin) ? cb(null, true) : cb(new Error('CORS blocked')) }));
  app.use(express.json({ limit: '12kb' }));
  app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'lihini-portfolio-api' }));
  app.get('/api/health/db', async (_req, res) => {
