@@ -364,3 +364,30 @@ main .contact-form :is(input,textarea):focus {
 }
 :root:not([data-theme="light"]) :is(.primary,.contact-form .primary) {color:#0b0d14}
 :root:not([data-theme="light"]) :is(.primary,.contact-form .primary):hover {color:#fff}
+
+/* Project showcase and native, keyboard-accessible detail dialog. */
+.project-context,.project-result-count {font-size:12px;color:var(--muted);line-height:1.6}
+.project-result-count {margin:0 0 22px}
+.project-detail-button {display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 14px;border:1px solid var(--accent);border-radius:8px;background:transparent;color:var(--accent);font:inherit;font-size:12px;font-weight:600}
+.project-detail-button:hover {background:var(--accent-soft)}
+.verification-note {font-size:12px!important;line-height:1.7;min-height:0!important;color:var(--muted)}
+.internship-heading {margin-top:70px;margin-bottom:28px;max-width:780px}
+.internship-heading h3 {font:700 clamp(24px,3vw,34px) Manrope,sans-serif;letter-spacing:-1px;margin:18px 0}
+.internship-heading p,.internship-heading li {color:var(--muted);font-size:14px;line-height:1.9}
+.internship-heading ul {padding-left:22px}
+.project-dialog {width:min(800px,calc(100% - 32px));max-height:calc(100dvh - 48px);box-sizing:border-box;padding:28px;border:1px solid var(--card-border);border-radius:18px;background:var(--dark-card,var(--card-neutral));color:var(--card-heading);box-shadow:0 24px 70px #0005;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+.project-dialog::backdrop {background:#070a14bf}
+.project-dialog .detail-header {display:flex;align-items:center;justify-content:space-between;gap:16px}
+.project-dialog h2 {font:700 clamp(26px,4vw,38px) Manrope,sans-serif;letter-spacing:-1px;margin:16px 0}
+.project-dialog h3 {font-size:17px;margin:26px 0 12px}
+.project-dialog p,.project-dialog li {font-size:14px;line-height:1.8;color:var(--card-description)}
+.project-dialog ul {padding-left:22px}
+.project-dialog .tags span {color:var(--card-heading);background:var(--dark-badge,#eee7f8);border-color:var(--card-border)}
+.project-dialog .project-cover {padding:0;margin:22px 0;background:transparent!important;border:0!important}
+.project-dialog .project-type,.project-dialog .project-links a,.source-evidence a {color:var(--accent)}
+.project-dialog .icon-button {color:var(--card-heading);border-color:var(--card-border);flex-shrink:0}
+.project-dialog .icon-button:hover {background:var(--dark-card-secondary,#eee7f8)}
+.source-evidence {margin-top:26px;border-top:1px solid var(--card-border);padding-top:18px;font-size:12px}
+.source-evidence summary {cursor:pointer;min-height:44px;display:list-item;line-height:1.8;color:var(--card-heading)}
+.source-evidence a {overflow-wrap:anywhere;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:430px) {.project-dialog {padding:20px}.project-links {gap:14px}}
