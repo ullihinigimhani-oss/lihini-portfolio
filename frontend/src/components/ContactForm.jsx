@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { CONTACT_EMAIL, contactApiBase, contactMailto, validateContact } from '../lib/contact';
 
 const emptyForm = {name:'',email:'',subject:'',message:'',website:''};
@@ -9,10 +9,8 @@ export default function ContactForm() {
   const [form,setForm] = useState(emptyForm);
   const [status,setStatus] = useState('');
   const [busy,setBusy] = useState(false);
-  const [draft,setDraft] = useState('');
   const update = event => {
     setForm({...form,[event.target.name]:event.target.value});
-    setDraft('');
     setStatus('');
   };
   async function submit(event) {
@@ -23,8 +21,7 @@ export default function ContactForm() {
     const error = validateContact(form);
     if (error) { setStatus(error); return; }
     if (!apiBase) {
-      setDraft(contactMailto(form));
-      setStatus('Your email draft is ready. Open your email app, review the details, and press Send there. Nothing has been sent from this website.');
+      window.location.href = contactMailto(form);
       return;
     }
     setBusy(true);
@@ -45,9 +42,9 @@ export default function ContactForm() {
     <label>Subject<input required name="subject" minLength="2" maxLength="200" placeholder="What is your message about?" value={form.subject} onChange={update}/></label>
     <label>Message<textarea required name="message" minLength="10" maxLength="3000" rows="5" placeholder="Tell me about your project or opportunity..." value={form.message} onChange={update}/></label>
     <input name="website" tabIndex="-1" autoComplete="off" aria-hidden="true" className="honeypot" value={form.website} onChange={update}/>
-    {!apiBase && <p id="email-fallback-help" className="form-status email-fallback-help">Send via your own email app. Prepare your draft below, then choose Open Email App. You will need to press Send in your email app to deliver it.</p>}
-    <button className="btn primary" type="submit" disabled={busy}>{busy?'Sending...':apiBase?'Send message':'Prepare email'} <Send size={17} aria-hidden="true"/></button>
+    {!apiBase && <p id="email-fallback-help" className="form-status email-fallback-help">Press Send in your email application to deliver your message.</p>}
+    <button className="btn primary" type="submit" disabled={busy}>{busy?'Sending...':apiBase?'Send message':'Send Email'} <Send size={17} aria-hidden="true"/></button>
     {status && <p role="status" className="form-status">{status}</p>}
-    {draft && <div className="email-draft-actions"><a className="btn outline" href={draft} aria-describedby="email-fallback-help"><Mail size={18} aria-hidden="true"/> Open Email App</a><p className="form-status">If no app opens, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> directly. Your form details will stay here until you leave or refresh.</p></div>}
+    {!apiBase && <p className="form-status email-alternative">Or email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> directly.</p>}
   </form>;
 }
