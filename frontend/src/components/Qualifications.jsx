@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Award, ArrowUpRight, BriefcaseBusiness, ChevronDown, Cloud, Code2, Database, FileText, GraduationCap, Monitor, Server, Smartphone, Wrench } from 'lucide-react';
+import { Award, ArrowUpRight, BriefcaseBusiness, ChevronDown, Cloud, Code2, Database, GraduationCap, Monitor, Server, Smartphone, Wrench } from 'lucide-react';
 import Reveal from './Reveal';
 import { skillCategories, certificates, certificateIssuers, visibleCertificates, formatCertificateDate, experience, education } from '../data/qualifications';
 
@@ -27,11 +27,6 @@ export function Experience() {
         <p>Contributed to <strong>3S HRM</strong> and <strong>Celcius CRM</strong> as part of the development team.</p>
         <ul className="experience-contributions">{experience.contributions.map(item=><li key={item}>{item}</li>)}</ul>
         <a className="qualification-link" href="#projects">Explore the selected professional work <ArrowUpRight size={15} aria-hidden="true"/></a>
-        <div className="experience-document">
-          <a className="btn outline service-letter-link" href="/Intern%20service%20letter%20-%20Ms.%20Lihini%20Gimhani.pdf" target="_blank" rel="noopener noreferrer">
-            <FileText size={18} aria-hidden="true"/><span>View Internship Service Letter<span className="sr-only"> — PDF (opens in a new tab)</span></span><ArrowUpRight size={16} aria-hidden="true"/>
-          </a>
-        </div>
       </div></Reveal>
       <Reveal as="article" className="timeline-card" aria-labelledby="education-title"><span className="timeline-icon"><GraduationCap size={20} aria-hidden="true"/></span><div>
         <span className="period"><time dateTime={education.start}>October 2023</time> – <time dateTime={education.end}>December 2027</time> (Expected)</span>
