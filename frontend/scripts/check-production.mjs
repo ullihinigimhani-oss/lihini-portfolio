@@ -17,13 +17,18 @@ assert.equal(new Set(certificates.map(c => c.file)).size, 11);
 assert.deepEqual(['All','Featured','Mobile','Web','Enterprise'].map(filter => filterProjects(filter).length), [5,3,2,3,1]);
 assert.ok(projects.every(project => !project.demo), 'No unverified demo actions');
 
-const qualificationSource = read('src/components/Qualifications.jsx').toString();
-const serviceLetter = qualificationSource.match(/href="(\/Intern[^"\n]+\.pdf)"/)[1];
 const assets = [
   ...certificates.map(c => `/certificates/${c.file}`),
-  '/Lihini_Gimhani_CV.pdf', serviceLetter, '/favicon-lg.svg', '/profile.png',
+  '/Lihini_Gimhani_CV.pdf', '/favicon-lg.svg', '/profile.png',
   ...readdirSync(root + 'public/projects').filter(f => f.endsWith('.svg')).map(f => `/projects/${f}`),
 ];
+// Only the CV and the eleven approved certificates may be shipped as PDFs.
+const approvedPdfs = assets.filter(path => path.endsWith('.pdf')).map(path => path.slice(1)).sort();
+for (const directory of ['public','dist']) {
+  const shippedPdfs = readdirSync(root + directory, {recursive:true})
+    .filter(file => file.toLowerCase().endsWith('.pdf')).map(file => file.replaceAll('\\','/')).sort();
+  assert.deepEqual(shippedPdfs, approvedPdfs, `${directory} PDF inventory`);
+}
 const server = await preview({ root, logLevel:'silent', preview:{host:'127.0.0.1',port:0} });
 try {
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;
@@ -39,7 +44,7 @@ try {
       assert.equal(original.subarray(0,5).toString(), '%PDF-');
     }
   }
-  console.log(`PASS: title, description, favicon, project filters, and ${assets.length} production assets (13 original PDFs, portrait, favicon, 7 covers).`);
+  console.log(`PASS: title, description, favicon, project filters, approved PDF inventory, and ${assets.length} production assets (12 original PDFs, portrait, favicon, 7 covers).`);
 } finally {
   await new Promise((resolve,reject) => server.httpServer.close(error => error ? reject(error) : resolve()));
 }
